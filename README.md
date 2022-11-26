@@ -14,3 +14,4 @@
 # Genome annotation
 - [x] Transcriptome aseembly using Trinity pipeline 😂
 - [x] We used MAKER and BRAKER 😎
+- [ ] Generated sample specific repeat database using `RepeatModeller`
