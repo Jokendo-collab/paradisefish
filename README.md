@@ -1,9 +1,10 @@
-# General steps in assembling the fish genome
-
-- [x] Assemble the reads in Trio binning mode using Hifiasm and Verkko. The reads were also assembled with verkko without trio binning to compare which assembly method works best on our data
+# Genome assembly process
+- [x] Run jellyfish on the raw illumina reads to assess the genome features such as predicted genome size, heterozygosity/homozygosity, PCR duplication rates
+- [x] Run the assemblers which for our case we used hifiasm and verkko to do the trio binning assembly.
+- [x] The performance of the above assemblers was compared in trio and none trio mode. The results were then compared to findout which assembler works best on our data
 - [x] Assess the assembly quality using Merquiry and T2T polishing: Doing QV estimates on trio and non-trio mode
 - [x] Align the long reads to the assembled genomes using winnowmap using the recommended settings
-- [ ] Run BUSCO on the data
+- [ ] Run BUSCO on the data to assess the assembly completeness
 - [x] Assess the assembly correctness using IGV
 
 # Genomescope result and interpratation
