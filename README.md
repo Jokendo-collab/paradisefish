@@ -11,8 +11,5 @@
 ![geneomeScope](https://github.com/Jokendo-collab/paradisefishGenomeAssembly/blob/main/paternal.png)
 > Estimated genome size ~**0.5GB** GB. There are arounf 11% repetitive content in this genome. This means that the genome is easy to assemble and the trio binning could not work properly since the genome is more homozugous. 
 
-# Genome quality assessment
-![NGx](https://github.com/Jokendo-collab/paradisefishGenomeAssembly/blob/main/NGx_plot.png)
-
 # Genome annotation
 - [x] We used MAKER and BRAKER
