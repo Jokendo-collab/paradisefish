@@ -8,5 +8,5 @@
 - [x] Assess the assembly correctness using IGV
 
 # Genomescope result and interpratation
-![geneomeScope](https://github.com/Jokendo-collab/GenomeAssembly_1/blob/main/transformed_linear_plot.png)
-> First, I notice is that the genome size for these two are being predicted to be around 1.5GB which is a higher than I was expecting since I was expecting **0.5GB** GB. Second, I notice that there are around 62% unique 21-mers suggesting this genome has around 38% repetitive content. This means the genome could be challenging to assemble with short reads. **_the heterozygosity of the white abalone is much lower than that of black abalone. This also makes sense. The white abalone samples were acquired from a white abalone farm, where as the black abalone were obtained from the wild._**
+![geneomeScope](https://github.com/Jokendo-collab/paradisefishGenomeAssembly/blob/main/paternal.png)
+> Estimated genome size ~**0.5GB** GB. There are arounf 11% repetitive content in this genome. This means that the genome is easy to assemble and the trio binning could not work properly since the genome is more homozugous. 
