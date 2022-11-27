@@ -14,4 +14,25 @@
 # Genome annotation
 - [x] Transcriptome aseembly using Trinity pipeline 😂
 - [x] We used MAKER and BRAKER 😎
-- [ ] Generated sample specific repeat database using `RepeatModeller`
+# Using `MAKER` for genome annotatio
+You will need the following tools:
+  - `RepeatModeler` and `RepeatMasker` with all dependencies (I used NCBI BLAST) and RepBase (version used was 20150807).
+  - `MAKER MPI` version 2.31.8 (though any other version 2 releases should be okay).
+  - `BUSCO`
+  - `AUGUSTUS`
+  - `SNAP`
+  - `BEDtools`
+ ### Required files
+ - [x] `Hifiasm` assembled genome. In our case we used the primary assembly from the hifiasm assembler and it must be be in `fasta` format
+ - [x] `Trinity` transcriptome assembly in `fasta`
+ - [x] Full proteome database of the assembled organism downloaded from either  NCBI or uniprot in `fasta`
+ 
+ # Procedure
+#### 1. **_De nove_** repeat identification. It is important to identify repeats de novo from your reference genome using RepeatModeler
+```bash
+BuildDatabase -name pfish -engine ncbi hifiasmNoTrio.fasta
+RepeatModeler -pa 32 -engine ncbi -database pfish 2>&1 | tee repeatmodeler.log
+```
+#### 2. Initial MAKER analysis. 
+
+
