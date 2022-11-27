@@ -1,4 +1,3 @@
-Please see the most up-to-date version of this protocol on my blog at [https://darencard.net/blog/](https://darencard.net/blog/).
 
 # Genome Annotation using MAKER
 
