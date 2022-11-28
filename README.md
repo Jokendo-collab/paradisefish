@@ -1,3 +1,9 @@
+# Genome assembly
+1. Genome features assessments using jellyfish
+2. Quality assessement of the reeads using fastqc
+3. Assembly using hifiasm in non-trio mode because the organism is highly inbred
+4. Assembly quality assessment  using Mequiry and KAT
+
 
 # Genome Annotation using MAKER
 
