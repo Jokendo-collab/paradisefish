@@ -6,6 +6,7 @@
 
 
 # Genome Annotation using MAKER
+A detailed genome repeat annotation can be found [here](https://darencard.net/blog/2022-07-09-genome-repeat-annotation/) 
 
 [MAKER](http://www.yandell-lab.org/software/maker.html) is a great tool for annotating a reference genome using empirical and *ab initio* gene predictions. [GMOD](http://gmod.org/wiki/Main_Page), the umbrella organization that includes MAKER, has some nice tutorials online for running MAKER. However, these were quite simplified examples and it took a bit of effort to wrap my head completely around everything. Here I will describe a *de novo* genome annotation for *Boa constrictor* in detail, so that there is a record and that it is easy to use this as a guide to annotate any genome.
 
