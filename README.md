@@ -148,6 +148,31 @@ allLen=`seqtk comp reference-genome.fasta | datamash sum 2`;
 parseRM.pl -v -i 05_full_out/reference-genome.full_mask.align -p -g ${allLen} -l 50,1 2>&1 | tee logs/06_parserm.log
 ```
 
+# Training Gene Prediction Software (SNAP)
+SNAP is pretty quick and easy to train. Issuing the following commands will perform the training. It is best to put some thought into what kind of gene models you use from MAKER. In this case, we use models with an AED of 0.25 or better and a length of 50 or more amino acids, which helps get rid of junky models.
+
+```bash
+mkdir snap
+mkdir snap/round1
+cd snap/round1
+# export 'confident' gene models from MAKER and rename to something meaningful
+maker2zff -x 0.25 -l 50 -d ../../Bcon_rnd1.maker.output/Bcon_rnd1_master_datastore_index.log
+rename 's/genome/Bcon_rnd1.zff.length50_aed0.25/g' *
+# gather some stats and validate
+fathom Bcon_rnd1.zff.length50_aed0.25.ann Bcon_rnd1.zff.length50_aed0.25.dna -gene-stats > gene-stats.log 2>&1
+fathom Bcon_rnd1.zff.length50_aed0.25.ann Bcon_rnd1.zff.length50_aed0.25.dna -validate > validate.log 2>&1
+# collect the training sequences and annotations, plus 1000 surrounding bp for training
+fathom Bcon_rnd1.zff.length50_aed0.25.ann Bcon_rnd1.zff.length50_aed0.25.dna -categorize 1000 > categorize.log 2>&1
+fathom uni.ann uni.dna -export 1000 -plus > uni-plus.log 2>&1
+# create the training parameters
+mkdir params
+cd params
+forge ../export.ann ../export.dna > ../forge.log 2>&1
+cd ..
+# assembly the HMM
+hmm-assembler.pl Bcon_rnd1.zff.length50_aed0.25 params > Bcon_rnd1.zff.length50_aed0.25.hmm
+
+```
 
 
 
