@@ -1,0 +1,22 @@
+[+] Loading GSL 2.5 for GCC 7.2.0 ...
+[+] Loading mashmap  2.0 
+>>>>>>>>>>>>>>>>>>
+Reference = [GRCz11_genomic.fasta]
+Query = [assembly.fasta]
+Kmer size = 21
+Window size = 200
+Segment length = 1000 (read split allowed)
+Alphabet = DNA
+Percentage identity threshold = 95%
+Mapping output file = assmbly-chr.csv
+Filter mode = 2 (1 = map, 2 = one-to-one, 3 = none)
+Execution threads  = 32
+>>>>>>>>>>>>>>>>>>
+INFO, skch::Sketch::build, minimizers picked from reference = 17826963
+INFO, skch::Sketch::index, unique minimizers = 8775402
+INFO, skch::Sketch::computeFreqHist, Frequency histogram of minimizers = (1, 5990481) ... (1138419, 1)
+INFO, skch::Sketch::computeFreqHist, With threshold 0.001%, ignore minimizers occurring >= 1625 times during lookup.
+INFO, skch::main, Time spent computing the reference index: 19.054 sec
+INFO, skch::Map::mapQuery, [count of mapped reads, reads qualified for mapping, total input reads] = [342, 347, 347]
+INFO, skch::main, Time spent mapping the query : 240.178 sec
+INFO, skch::main, mapping results saved in : assmbly-chr.csv

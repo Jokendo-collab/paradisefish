@@ -1,0 +1,674 @@
+[+] Loading singularity  3.10.3  on cn2337 
+[+] Loading mbg  1.0.11 
+[+] Loading graphaligner  1.0.16 
+[+] Loading python 3.9  ... 
+[+] Loading snakemake  7.7.0 
+[+] Loading verkko  1.1 
+[-] Unloading python 3.9  ... 
+[+] Loading python 3.9  ... 
+[-] Unloading snakemake  7.7.0 
+[+] Loading snakemake  7.7.0 
+[+] Loading gcc  9.2.0  ... 
+[-] Unloading gcc  9.2.0  ... 
+[+] Loading gcc  9.2.0  ... 
+[+] Loading openmpi 4.0.5  for GCC 9.2.0 
+[+] Loading ImageMagick  7.0.8  on cn2337 
+[+] Loading HDF5  1.10.4 
+[-] Unloading gcc  9.2.0  ... 
+[+] Loading gcc  9.2.0  ... 
+[+] Loading NetCDF 4.7.4_gcc9.2.0 
+[+] Loading pandoc  2.17.1.1  on cn2337 
+[+] Loading pcre2 10.21  ... 
+[+] Loading R 4.2.0 
+[+] Loading bedtools  2.30.0 
+[+] Loading samtools 1.9  ... 
+Launching verkko branch  commit  
+Using snakemake 7.7.0.
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cluster nodes: 1000
+Job stats:
+job                            count    min threads    max threads
+---------------------------  -------  -------------  -------------
+buildPackages                      1              8              8
+combineConsensus                   1              1              1
+extractONT                         1              8              8
+generateLayoutContigsInputs        1              1              1
+getCoverage                        3              1              1
+layoutContigs                      1              1              1
+prepCoverage                       1              1              1
+processONT                         1              1              1
+rukki                              1              8              8
+untip                              1              1              1
+verkko                             1              1              1
+total                             13              1              8
+
+Select jobs to execute...
+
+[Wed Dec 21 13:56:43 2022]
+rule processONT:
+    input: 2-processGraph/unitig-unrolled-hifi-resolved.gfa, 1-buildGraph/hifi_nodecov.csv, 3-align/alns-ont.gaf
+    output: 4-processONT/unitig-unrolled-ont-resolved.gfa, 4-processONT/gaps-ont.gaf, 4-processONT/nodecovs-ont.csv
+    log: 4-processONT/processONT.err
+    jobid: 2
+    reason: Missing output files: 4-processONT/gaps-ont.gaf, 4-processONT/unitig-unrolled-ont-resolved.gfa, 4-processONT/nodecovs-ont.csv
+    resources: mem_mb=4344, disk_mb=4344, tmpdir=/tmp, job_id=1, n_cpus=1, mem_gb=64, time_h=24
+
+Submitted job 2 with external jobid '54718115'.
+No jobs available for user okendojo and/or filters used
+Job 54718115 not known (yet) by slurm; will return 'running' by default.
+[Wed Dec 21 14:21:52 2022]
+Error in rule processONT:
+    jobid: 2
+    output: 4-processONT/unitig-unrolled-ont-resolved.gfa, 4-processONT/gaps-ont.gaf, 4-processONT/nodecovs-ont.csv
+    log: 4-processONT/processONT.err (check log file(s) for error message)
+    shell:
+        
+cd 4-processONT
+
+cat > ./processONT.sh <<EOF
+#!/bin/sh
+set -e
+
+echo Step 1a
+awk 'BEGIN \\
+     { \\
+        FS="\t"; \\
+     } \\
+     { \\
+        if (\$12 >= 20) print; \\
+     }' \\
+  < ../3-align/alns-ont.gaf \\
+  > alns-ont-mapqfilter.gaf
+
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/chop_misassemblies.py ../2-processGraph/unitig-unrolled-hifi-resolved.gfa alns-ont-mapqfilter.gaf chop-mapping.txt alns-cut.gaf 10 20 > chopped-unitig-unrolled-hifi-resolved.gfa 2> chop-info.txt
+
+echo ""
+echo Step 2a
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/insert_aln_gaps.py chopped-unitig-unrolled-hifi-resolved.gfa alns-cut.gaf 3 50 alns-ont-nogap-1.gaf alns-ont-gap1.gaf gapont1 n \\
+  > gapped-once-unitig-unrolled-hifi-resolved.gfa
+
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/insert_aln_gaps.py gapped-once-unitig-unrolled-hifi-resolved.gfa alns-ont-nogap-1.gaf 5 1500 alns-ont-nogap-2.gaf alns-ont-gap2.gaf gapont2 n \\
+  > gapped-twice-unitig-unrolled-hifi-resolved.gfa
+
+cat alns-ont-nogap-2.gaf alns-ont-gap1.gaf alns-ont-gap2.gaf |  /usr/local/apps/verkko/1.1/lib/verkko/scripts/maybe_trim_alignment.py gapped-twice-unitig-unrolled-hifi-resolved.gfa 100 > alns-cut-trim.gaf
+
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/insert_aln_gaps.py gapped-twice-unitig-unrolled-hifi-resolved.gfa alns-cut-trim.gaf 10 100 alns-ont-nogap.gaf alns-ont-gap3.gaf cutgap y > gapped-unitig-unrolled-hifi-resolved.gfa
+
+
+cat alns-ont-gap1.gaf alns-ont-gap2.gaf alns-ont-gap3.gaf > ../4-processONT/gaps-ont.gaf
+
+echo ""
+echo Step 2b
+cat alns-ont-nogap.gaf ../4-processONT/gaps-ont.gaf | awk -F '\t' '{if (\$4-\$3 >= \$2*0.8 && \$12 >= 20) print;}' |  /usr/local/apps/verkko/1.1/lib/verkko/scripts/trim_dbg_alignment.py gapped-unitig-unrolled-hifi-resolved.gfa 1500 > alns-ont-filter-trim.gaf
+
+echo ""
+echo Step 2c
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/calculate_coverage.py gapped-unitig-unrolled-hifi-resolved.gfa \\
+  < alns-ont-filter-trim.gaf \\
+  > ../4-processONT/nodecovs-ont.csv
+
+echo ""
+echo Step 2d
+cut -f 6 < alns-ont-filter-trim.gaf > paths.txt
+
+echo ""
+echo Step 3a
+awk '{ \\
+        if (\$2 >= 100000) { \\
+          sum += \$2 * \$3; \\
+          count += \$2; \\
+        } \\
+     } \
+     END \\
+     { \\
+        print sum / count; \\
+     }' \\
+  < nodecovs-ont.csv
+
+echo ""
+echo Step 3b
+
+#  cat *mapping* > ...
+cat ../2-processGraph/unitig-mapping-1.txt ../2-processGraph/unroll_mapping_1.txt  \\
+  > combined-nodemap-uniques.txt
+
+# hifi-resolved.gfa
+# gapped-once-hifi-resolved.gfa
+# gapped-twice-hifi-resolved.gfa
+# gapped-hifi-resolved.gfa
+# unrolled-hifi-resolved.gfa
+# unitig-unrolled-hifi-resolved.gfa
+# gapped-unitig-unrolled-hifi-resolved.gfa
+
+grep -h '^L' ../1-buildGraph/hifi-resolved.gfa ../2-processGraph/gapped-once-hifi-resolved.gfa ../2-processGraph/gapped-twice-hifi-resolved.gfa ../2-processGraph/gapped-hifi-resolved.gfa ../2-processGraph/unrolled-hifi-resolved.gfa ../2-processGraph/unitig-unrolled-hifi-resolved.gfa  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  > combined-edges-uniques.gfa
+
+# this used to have grep -v \*
+#
+cat ../1-buildGraph/hifi-resolved.gfa ../2-processGraph/gapped-once-hifi-resolved.gfa ../2-processGraph/gapped-twice-hifi-resolved.gfa ../2-processGraph/gapped-hifi-resolved.gfa ../2-processGraph/unrolled-hifi-resolved.gfa ../2-processGraph/unitig-unrolled-hifi-resolved.gfa  gapped-unitig-unrolled-hifi-resolved.gfa \\
+| \\
+awk 'BEGIN \\
+     { \\
+        FS="[ \t]+"; OFS="\t"; \\
+     } \\
+     \$1 == "S" \\
+     { \\
+        print \$2, length(\$3); \\
+     }' \\
+  > nodelens-uniques.txt
+
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/get_original_coverage.py \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  combined-nodemap-uniques.txt \\
+  combined-edges-uniques.gfa \\
+  nodelens-uniques.txt \\
+  ../1-buildGraph/hifi_nodecov.csv \\
+> hifi-nodecov-gapped-unitig-unrolled-hifi-resolved.csv
+
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/estimate_unique_local.py \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  hifi-nodecov-gapped-unitig-unrolled-hifi-resolved.csv \\
+  alns-ont-filter-trim.gaf 100000 30 0.8 \\
+> unique_nodes_ont_coverage.txt
+
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/remove_contained_spurious_uniques.py \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  paths.txt \\
+  unique_nodes_ont_coverage.txt \\
+  5 0.4 20 \\
+> unique_nodes_ont_removecontained.txt
+
+#  COMMENTED OUT IN ORIGINAL
+#  /usr/local/apps/verkko/1.1/lib/verkko/scripts/translate_uniques.py normal-hifi_connected_twice.gfa < unique_nodes_hifi.txt > translated_uniques.txt
+#  /usr/local/apps/verkko/1.1/lib/verkko/scripts/translate_nodes_by_seq.py normal-hifi_connected_twice.gfa ../2-processGraph/unitig-unrolled-hifi-resolved.gfa < translated_uniques.txt > unique_nodes_ont_translated.txt
+# cat unique_nodes_ont_coverage.txt unique_nodes_ont_translated.txt | sort | uniq > unique_nodes_ont.txt
+
+echo ""
+echo Step 4a
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/fix_diploid_unique_nodes.py unique_nodes_ont_removecontained.txt alns-ont-filter-trim.gaf hifi-nodecov-gapped-unitig-unrolled-hifi-resolved.csv nodecovs-ont.csv gapped-unitig-unrolled-hifi-resolved.gfa \\
+  > unique_nodes_diploidfix.txt
+
+echo ""
+echo Step 4b
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/add_hairpin_uniques.py unique_nodes_diploidfix.txt hifi-nodecov-gapped-unitig-unrolled-hifi-resolved.csv < gapped-unitig-unrolled-hifi-resolved.gfa \\
+  > unique_nodes_hairpinfix.txt
+
+echo ""
+echo Step 5
+cp unique_nodes_hairpinfix.txt unique_nodes_ont.txt
+
+echo ""
+echo Step 6
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/find_bridges.py unique_nodes_ont.txt \\
+  < paths.txt \\
+  > bridges.txt
+
+echo ""
+echo Step 7a
+grep -v '(' < bridges.txt \\
+| \\
+grep -v '^\$' \\
+| \\
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/remove_wrong_connections_2.py forbidden_wrong_connections.txt \\
+| \\
+sort > bridging_seq_all.txt
+
+echo ""
+echo Step 7b
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/pick_majority_bridge.py forbidden_minority_bridges.txt \\
+  < bridging_seq_all.txt \\
+  > bridging_seq_picked_all.txt
+
+echo ""
+echo Step 8
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/remove_crosslink_paths.py \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  unique_nodes_ont.txt \\
+  bridging_seq_picked_all.txt \\
+  bridges.txt \\
+  > bridges_fixcrosslink.txt \\
+ 2> forbidden_crosslinks.txt
+
+echo ""
+echo Step 9
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/fix_diploid_paths.py \\
+  unique_nodes_ont.txt \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  bridges_fixcrosslink.txt \\
+  bridges.txt \\
+  3 \\
+  > bridging_seq_diploidfix_all.txt
+
+sort < bridging_seq_diploidfix_all.txt > bridging_seq_picked.txt
+
+echo ""
+echo Step 10
+# forbidden_wrong_connections.txt deliberately not included here so that if that causes a gap, the tangle is forbidden
+cat forbidden_crosslinks.txt forbidden_minority_bridges.txt \\
+  > bridging_seq_forbidden.txt
+
+echo ""
+echo Step 11
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/forbid_unbridged_tangles.py \\
+  unique_nodes_ont.txt \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  bridging_seq_forbidden.txt \\
+  bridging_seq_picked.txt \\
+  paths.txt \\
+  nodecovs-ont.csv \\
+  30 \\
+  hifi-nodecov-gapped-unitig-unrolled-hifi-resolved.csv \\
+  10 \\
+> forbidden_ends.txt
+
+echo ""
+echo Step 12
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/connect_uniques.py gapped-unitig-unrolled-hifi-resolved.gfa forbidden_ends.txt bridging_seq_picked.txt unique_nodes_ont.txt \\
+  > connected.gfa \\
+ 2> connected.gfa.err     #  It writes lots of chatter!
+
+echo ""
+echo Step 13
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/merge_unresolved_dbg_nodes.py \\
+  < connected.gfa \\
+  > normal-connected.gfa
+
+echo ""
+echo Step 14
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/get_bridge_mapping.py \\
+  normal-connected.gfa \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  > bridge_mapping.txt
+
+echo ""
+echo Step 15a
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/add_fake_alignments.py \\
+  ../2-processGraph/unitig-unrolled-hifi-resolved.gfa \\
+  normal-connected.gfa \\
+  alns-ont-filter-trim.gaf \\
+  nodecovs-ont.csv \\
+  fake-ont-alns.gaf \\
+  fake-ont-nodecovs-once.csv \\
+  10
+
+echo ""
+echo Step 15b
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/add_fake_bridging_paths.py \\
+  forbidden_ends.txt \\
+  bridging_seq_picked.txt \\
+  fake-ont-nodecovs-once.csv \\
+  fake-ont-nodecovs.csv \\
+  10 \\
+>> fake-ont-alns.gaf
+
+#FIXME parameterize
+#
+echo ""
+echo Step 16
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/resolve_triplets_kmerify.py \\
+  normal-connected.gfa \\
+  fake-ont-paths.txt \\
+  fake-ont-nodecovs.csv \\
+  resolve-mapping.txt \\
+  100000 \\
+  5 \\
+  20 10 5 \\
+  < fake-ont-alns.gaf \\
+  > ont-resolved-graph.gfa \\
+ 2> ont_resolved_graph.gfa.err
+
+echo ""
+echo Step 17
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/unroll_tip_loops.py \\
+  ont-resolved-graph.gfa 3 \\
+  < fake-ont-paths.txt \\
+  > unrolled-ont-resolved.gfa \\
+ 2> unrolled-ont-resolved.gfa.err
+
+echo ""
+echo Step 18
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/get_unroll_mapping.py \\
+  ont-resolved-graph.gfa \\
+  unrolled-ont-resolved.gfa \\
+> unroll_mapping_2.txt
+
+echo ""
+echo Step 19
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/unitigify.py utig2- unitig-mapping-2.txt \\
+  < unrolled-ont-resolved.gfa \\
+  > ../4-processONT/unitig-unrolled-ont-resolved.gfa
+EOF
+
+chmod +x ./processONT.sh
+
+./processONT.sh > ../4-processONT/processONT.err 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: 54718115
+
+Error executing rule processONT on cluster (jobid: 2, external: 54718115, jobscript: /vf/users/okendojo/slugProject/slug/assembly/verkkoHiFiONT/.snakemake/tmp.kv33cj_c/verkko.processONT.2.sh). For error details see the cluster log and the log files of the involved rule(s).
+Trying to restart job 2.
+Select jobs to execute...
+
+[Wed Dec 21 14:21:52 2022]
+rule processONT:
+    input: 2-processGraph/unitig-unrolled-hifi-resolved.gfa, 1-buildGraph/hifi_nodecov.csv, 3-align/alns-ont.gaf
+    output: 4-processONT/unitig-unrolled-ont-resolved.gfa, 4-processONT/gaps-ont.gaf, 4-processONT/nodecovs-ont.csv
+    log: 4-processONT/processONT.err
+    jobid: 2
+    reason: Missing output files: 4-processONT/gaps-ont.gaf, 4-processONT/unitig-unrolled-ont-resolved.gfa, 4-processONT/nodecovs-ont.csv
+    resources: mem_mb=4344, disk_mb=4344, tmpdir=/tmp, job_id=1, n_cpus=1, mem_gb=80, time_h=36
+
+Submitted job 2 with external jobid '54719456'.
+No jobs available for user okendojo and/or filters used
+Job 54719456 not known (yet) by slurm; will return 'running' by default.
+[Wed Dec 21 14:43:39 2022]
+Error in rule processONT:
+    jobid: 2
+    output: 4-processONT/unitig-unrolled-ont-resolved.gfa, 4-processONT/gaps-ont.gaf, 4-processONT/nodecovs-ont.csv
+    log: 4-processONT/processONT.err (check log file(s) for error message)
+    shell:
+        
+cd 4-processONT
+
+cat > ./processONT.sh <<EOF
+#!/bin/sh
+set -e
+
+echo Step 1a
+awk 'BEGIN \\
+     { \\
+        FS="\t"; \\
+     } \\
+     { \\
+        if (\$12 >= 20) print; \\
+     }' \\
+  < ../3-align/alns-ont.gaf \\
+  > alns-ont-mapqfilter.gaf
+
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/chop_misassemblies.py ../2-processGraph/unitig-unrolled-hifi-resolved.gfa alns-ont-mapqfilter.gaf chop-mapping.txt alns-cut.gaf 10 20 > chopped-unitig-unrolled-hifi-resolved.gfa 2> chop-info.txt
+
+echo ""
+echo Step 2a
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/insert_aln_gaps.py chopped-unitig-unrolled-hifi-resolved.gfa alns-cut.gaf 3 50 alns-ont-nogap-1.gaf alns-ont-gap1.gaf gapont1 n \\
+  > gapped-once-unitig-unrolled-hifi-resolved.gfa
+
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/insert_aln_gaps.py gapped-once-unitig-unrolled-hifi-resolved.gfa alns-ont-nogap-1.gaf 5 1500 alns-ont-nogap-2.gaf alns-ont-gap2.gaf gapont2 n \\
+  > gapped-twice-unitig-unrolled-hifi-resolved.gfa
+
+cat alns-ont-nogap-2.gaf alns-ont-gap1.gaf alns-ont-gap2.gaf |  /usr/local/apps/verkko/1.1/lib/verkko/scripts/maybe_trim_alignment.py gapped-twice-unitig-unrolled-hifi-resolved.gfa 100 > alns-cut-trim.gaf
+
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/insert_aln_gaps.py gapped-twice-unitig-unrolled-hifi-resolved.gfa alns-cut-trim.gaf 10 100 alns-ont-nogap.gaf alns-ont-gap3.gaf cutgap y > gapped-unitig-unrolled-hifi-resolved.gfa
+
+
+cat alns-ont-gap1.gaf alns-ont-gap2.gaf alns-ont-gap3.gaf > ../4-processONT/gaps-ont.gaf
+
+echo ""
+echo Step 2b
+cat alns-ont-nogap.gaf ../4-processONT/gaps-ont.gaf | awk -F '\t' '{if (\$4-\$3 >= \$2*0.8 && \$12 >= 20) print;}' |  /usr/local/apps/verkko/1.1/lib/verkko/scripts/trim_dbg_alignment.py gapped-unitig-unrolled-hifi-resolved.gfa 1500 > alns-ont-filter-trim.gaf
+
+echo ""
+echo Step 2c
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/calculate_coverage.py gapped-unitig-unrolled-hifi-resolved.gfa \\
+  < alns-ont-filter-trim.gaf \\
+  > ../4-processONT/nodecovs-ont.csv
+
+echo ""
+echo Step 2d
+cut -f 6 < alns-ont-filter-trim.gaf > paths.txt
+
+echo ""
+echo Step 3a
+awk '{ \\
+        if (\$2 >= 100000) { \\
+          sum += \$2 * \$3; \\
+          count += \$2; \\
+        } \\
+     } \
+     END \\
+     { \\
+        print sum / count; \\
+     }' \\
+  < nodecovs-ont.csv
+
+echo ""
+echo Step 3b
+
+#  cat *mapping* > ...
+cat ../2-processGraph/unitig-mapping-1.txt ../2-processGraph/unroll_mapping_1.txt  \\
+  > combined-nodemap-uniques.txt
+
+# hifi-resolved.gfa
+# gapped-once-hifi-resolved.gfa
+# gapped-twice-hifi-resolved.gfa
+# gapped-hifi-resolved.gfa
+# unrolled-hifi-resolved.gfa
+# unitig-unrolled-hifi-resolved.gfa
+# gapped-unitig-unrolled-hifi-resolved.gfa
+
+grep -h '^L' ../1-buildGraph/hifi-resolved.gfa ../2-processGraph/gapped-once-hifi-resolved.gfa ../2-processGraph/gapped-twice-hifi-resolved.gfa ../2-processGraph/gapped-hifi-resolved.gfa ../2-processGraph/unrolled-hifi-resolved.gfa ../2-processGraph/unitig-unrolled-hifi-resolved.gfa  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  > combined-edges-uniques.gfa
+
+# this used to have grep -v \*
+#
+cat ../1-buildGraph/hifi-resolved.gfa ../2-processGraph/gapped-once-hifi-resolved.gfa ../2-processGraph/gapped-twice-hifi-resolved.gfa ../2-processGraph/gapped-hifi-resolved.gfa ../2-processGraph/unrolled-hifi-resolved.gfa ../2-processGraph/unitig-unrolled-hifi-resolved.gfa  gapped-unitig-unrolled-hifi-resolved.gfa \\
+| \\
+awk 'BEGIN \\
+     { \\
+        FS="[ \t]+"; OFS="\t"; \\
+     } \\
+     \$1 == "S" \\
+     { \\
+        print \$2, length(\$3); \\
+     }' \\
+  > nodelens-uniques.txt
+
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/get_original_coverage.py \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  combined-nodemap-uniques.txt \\
+  combined-edges-uniques.gfa \\
+  nodelens-uniques.txt \\
+  ../1-buildGraph/hifi_nodecov.csv \\
+> hifi-nodecov-gapped-unitig-unrolled-hifi-resolved.csv
+
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/estimate_unique_local.py \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  hifi-nodecov-gapped-unitig-unrolled-hifi-resolved.csv \\
+  alns-ont-filter-trim.gaf 100000 30 0.8 \\
+> unique_nodes_ont_coverage.txt
+
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/remove_contained_spurious_uniques.py \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  paths.txt \\
+  unique_nodes_ont_coverage.txt \\
+  5 0.4 20 \\
+> unique_nodes_ont_removecontained.txt
+
+#  COMMENTED OUT IN ORIGINAL
+#  /usr/local/apps/verkko/1.1/lib/verkko/scripts/translate_uniques.py normal-hifi_connected_twice.gfa < unique_nodes_hifi.txt > translated_uniques.txt
+#  /usr/local/apps/verkko/1.1/lib/verkko/scripts/translate_nodes_by_seq.py normal-hifi_connected_twice.gfa ../2-processGraph/unitig-unrolled-hifi-resolved.gfa < translated_uniques.txt > unique_nodes_ont_translated.txt
+# cat unique_nodes_ont_coverage.txt unique_nodes_ont_translated.txt | sort | uniq > unique_nodes_ont.txt
+
+echo ""
+echo Step 4a
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/fix_diploid_unique_nodes.py unique_nodes_ont_removecontained.txt alns-ont-filter-trim.gaf hifi-nodecov-gapped-unitig-unrolled-hifi-resolved.csv nodecovs-ont.csv gapped-unitig-unrolled-hifi-resolved.gfa \\
+  > unique_nodes_diploidfix.txt
+
+echo ""
+echo Step 4b
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/add_hairpin_uniques.py unique_nodes_diploidfix.txt hifi-nodecov-gapped-unitig-unrolled-hifi-resolved.csv < gapped-unitig-unrolled-hifi-resolved.gfa \\
+  > unique_nodes_hairpinfix.txt
+
+echo ""
+echo Step 5
+cp unique_nodes_hairpinfix.txt unique_nodes_ont.txt
+
+echo ""
+echo Step 6
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/find_bridges.py unique_nodes_ont.txt \\
+  < paths.txt \\
+  > bridges.txt
+
+echo ""
+echo Step 7a
+grep -v '(' < bridges.txt \\
+| \\
+grep -v '^\$' \\
+| \\
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/remove_wrong_connections_2.py forbidden_wrong_connections.txt \\
+| \\
+sort > bridging_seq_all.txt
+
+echo ""
+echo Step 7b
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/pick_majority_bridge.py forbidden_minority_bridges.txt \\
+  < bridging_seq_all.txt \\
+  > bridging_seq_picked_all.txt
+
+echo ""
+echo Step 8
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/remove_crosslink_paths.py \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  unique_nodes_ont.txt \\
+  bridging_seq_picked_all.txt \\
+  bridges.txt \\
+  > bridges_fixcrosslink.txt \\
+ 2> forbidden_crosslinks.txt
+
+echo ""
+echo Step 9
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/fix_diploid_paths.py \\
+  unique_nodes_ont.txt \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  bridges_fixcrosslink.txt \\
+  bridges.txt \\
+  3 \\
+  > bridging_seq_diploidfix_all.txt
+
+sort < bridging_seq_diploidfix_all.txt > bridging_seq_picked.txt
+
+echo ""
+echo Step 10
+# forbidden_wrong_connections.txt deliberately not included here so that if that causes a gap, the tangle is forbidden
+cat forbidden_crosslinks.txt forbidden_minority_bridges.txt \\
+  > bridging_seq_forbidden.txt
+
+echo ""
+echo Step 11
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/forbid_unbridged_tangles.py \\
+  unique_nodes_ont.txt \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  bridging_seq_forbidden.txt \\
+  bridging_seq_picked.txt \\
+  paths.txt \\
+  nodecovs-ont.csv \\
+  30 \\
+  hifi-nodecov-gapped-unitig-unrolled-hifi-resolved.csv \\
+  10 \\
+> forbidden_ends.txt
+
+echo ""
+echo Step 12
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/connect_uniques.py gapped-unitig-unrolled-hifi-resolved.gfa forbidden_ends.txt bridging_seq_picked.txt unique_nodes_ont.txt \\
+  > connected.gfa \\
+ 2> connected.gfa.err     #  It writes lots of chatter!
+
+echo ""
+echo Step 13
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/merge_unresolved_dbg_nodes.py \\
+  < connected.gfa \\
+  > normal-connected.gfa
+
+echo ""
+echo Step 14
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/get_bridge_mapping.py \\
+  normal-connected.gfa \\
+  gapped-unitig-unrolled-hifi-resolved.gfa \\
+  > bridge_mapping.txt
+
+echo ""
+echo Step 15a
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/add_fake_alignments.py \\
+  ../2-processGraph/unitig-unrolled-hifi-resolved.gfa \\
+  normal-connected.gfa \\
+  alns-ont-filter-trim.gaf \\
+  nodecovs-ont.csv \\
+  fake-ont-alns.gaf \\
+  fake-ont-nodecovs-once.csv \\
+  10
+
+echo ""
+echo Step 15b
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/add_fake_bridging_paths.py \\
+  forbidden_ends.txt \\
+  bridging_seq_picked.txt \\
+  fake-ont-nodecovs-once.csv \\
+  fake-ont-nodecovs.csv \\
+  10 \\
+>> fake-ont-alns.gaf
+
+#FIXME parameterize
+#
+echo ""
+echo Step 16
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/resolve_triplets_kmerify.py \\
+  normal-connected.gfa \\
+  fake-ont-paths.txt \\
+  fake-ont-nodecovs.csv \\
+  resolve-mapping.txt \\
+  100000 \\
+  5 \\
+  20 10 5 \\
+  < fake-ont-alns.gaf \\
+  > ont-resolved-graph.gfa \\
+ 2> ont_resolved_graph.gfa.err
+
+echo ""
+echo Step 17
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/unroll_tip_loops.py \\
+  ont-resolved-graph.gfa 3 \\
+  < fake-ont-paths.txt \\
+  > unrolled-ont-resolved.gfa \\
+ 2> unrolled-ont-resolved.gfa.err
+
+echo ""
+echo Step 18
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/get_unroll_mapping.py \\
+  ont-resolved-graph.gfa \\
+  unrolled-ont-resolved.gfa \\
+> unroll_mapping_2.txt
+
+echo ""
+echo Step 19
+ /usr/local/apps/verkko/1.1/lib/verkko/scripts/unitigify.py utig2- unitig-mapping-2.txt \\
+  < unrolled-ont-resolved.gfa \\
+  > ../4-processONT/unitig-unrolled-ont-resolved.gfa
+EOF
+
+chmod +x ./processONT.sh
+
+./processONT.sh > ../4-processONT/processONT.err 2>&1
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+    cluster_jobid: 54719456
+
+Error executing rule processONT on cluster (jobid: 2, external: 54719456, jobscript: /vf/users/okendojo/slugProject/slug/assembly/verkkoHiFiONT/.snakemake/tmp.kv33cj_c/verkko.processONT.2.sh). For error details see the cluster log and the log files of the involved rule(s).
+Job failed, going on with independent jobs.
+Exiting because a job execution failed. Look above for error message
+BUG: Out of jobs ready to be started, but not all files built yet. Please check https://github.com/snakemake/snakemake/issues/823 for more information.
+Remaining jobs:
+ - untip: 5-untip/unitig-popped-unitig-normal-connected-tip.gfa, 5-untip/nodecov_hifi_fix.csv
+ - layoutContigs: 6-layoutContigs/unitig-popped.layout, 6-layoutContigs/unitig-popped.layout.scfmap, 6-layoutContigs/gaps.txt
+ - generateLayoutContigsInputs: 6-layoutContigs/combined-nodemap.txt, 6-layoutContigs/combined-edges.gfa, 6-layoutContigs/combined-alignments.gaf, 6-layoutContigs/consensus_paths.txt, 6-layoutContigs/nodelens.txt
+ - buildPackages: 7-consensus/packages.tigName_to_ID.map, 7-consensus/packages.finished, 7-consensus/packages.report
+ - getCoverage: 2-processGraph/unitig-unrolled-hifi-resolved.hifi-coverage.csv, 2-processGraph/unitig-unrolled-hifi-resolved.ont-coverage.csv
+ - verkko: assembly.homopolymer-compressed.gfa, assembly.homopolymer-compressed.noseq.gfa, assembly.homopolymer-compressed.layout, assembly.hifi-coverage.csv, assembly.ont-coverage.csv, assembly.fasta
+ - extractONT: 7-consensus/ont_subset.id, 7-consensus/ont_subset.extract, 7-consensus/ont_subset.fasta.gz
+ - rukki: 6-rukki/unitig-popped-unitig-normal-connected-tip.fasta, 6-rukki/unitig-popped-unitig-normal-connected-tip.noseq.gfa, 6-rukki/unitig-popped-unitig-normal-connected-tip.colors.csv, 6-rukki/unitig-popped-unitig-normal-connected-tip.paths.tsv, 6-rukki/unitig-popped-unitig-normal-connected-tip.paths.gaf
+ - processONT: 4-processONT/unitig-unrolled-ont-resolved.gfa, 4-processONT/gaps-ont.gaf, 4-processONT/nodecovs-ont.csv
+ - prepCoverage: 5-untip/combined-edges-final.gfa, 5-untip/nodelens-final.txt, 5-untip/combined-nodemap-final.txt
+ - combineConsensus: 7-consensus/unitig-popped.fasta, 7-consensus/unitig-popped.haplotype1.fasta, 7-consensus/unitig-popped.haplotype2.fasta, 7-consensus/unitig-popped.unassigned.fasta
+ - getCoverage: 4-processONT/unitig-unrolled-ont-resolved.hifi-coverage.csv, 4-processONT/unitig-unrolled-ont-resolved.ont-coverage.csv
+ - getCoverage: 5-untip/unitig-popped-unitig-normal-connected-tip.hifi-coverage.csv, 5-untip/unitig-popped-unitig-normal-connected-tip.ont-coverage.csv
+Complete log: .snakemake/log/2022-12-21T135630.818569.snakemake.log
