@@ -18,7 +18,7 @@ gmhmme3=/usr/local/apps/quast/5.2.0/quast_libs/genemark-es/linux_64/gmhmme3 #loc
 gmhmmp= #location of prokaryotic genemark executable
 augustus=/usr/local/apps/augustus/3.3.3/bin/augustus #location of augustus executable
 fgenesh= #location of fgenesh executable
-evm= #location of EvidenceModeler executable
+evm=/home/okendojo/software/EVidenceModeler-1.1.1/evidence_modeler.pl #location of EvidenceModeler executable
 tRNAscan-SE= #location of trnascan executable
 snoscan= #location of snoscan executable
 

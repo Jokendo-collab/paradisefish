@@ -3,14 +3,14 @@ genome=/data/okendojo/paradisfishProject/assemblies/hifiasm/hifiasmNoTrio/hifias
 organism_type=eukaryotic #eukaryotic or prokaryotic. Default is eukaryotic
 
 #-----Re-annotation Using MAKER Derived GFF3
-maker_gff=/data/okendojo/paradisfishProject/annotation/vertebrates/vat_anno_02.all.gff #MAKER derived GFF3 file
+maker_gff=/data/okendojo/paradisfishProject/annotation/vertebrates/maker_round_02.all.gff #MAKER derived GFF3 file
 est_pass=1 #use ESTs in maker_gff: 1 = yes, 0 = no
-altest_pass=0 #use alternate organism ESTs in maker_gff: 1 = yes, 0 = no
+altest_pass=1 #use alternate organism ESTs in maker_gff: 1 = yes, 0 = no
 protein_pass=1 #use protein alignments in maker_gff: 1 = yes, 0 = no
 rm_pass=1 #use repeats in maker_gff: 1 = yes, 0 = no
-model_pass=0 #use gene models in maker_gff: 1 = yes, 0 = no
-pred_pass=0 #use ab-initio predictions in maker_gff: 1 = yes, 0 = no
-other_pass=0 #passthrough anyything else in maker_gff: 1 = yes, 0 = no
+model_pass=1 #use gene models in maker_gff: 1 = yes, 0 = no
+pred_pass=1 #use ab-initio predictions in maker_gff: 1 = yes, 0 = no
+other_pass=1 #passthrough anyything else in maker_gff: 1 = yes, 0 = no
 
 #-----EST Evidence (for best results provide a file for at least one)
 est= #set of ESTs or assembled mRNA-seq in fasta format
@@ -37,7 +37,7 @@ augustus_species=paradisefish #Augustus gene prediction species model
 fgenesh_par_file= #FGENESH parameter file
 pred_gff= #ab-initio predictions from an external GFF3 file
 model_gff= #annotated gene models from an external GFF3 file (annotation pass-through)
-run_evm=0 #run EvidenceModeler, 1 = yes, 0 = no
+run_evm=1 #run EvidenceModeler, 1 = yes, 0 = no
 est2genome=0 #infer gene predictions directly from ESTs, 1 = yes, 0 = no
 protein2genome=0 #infer predictions from protein homology, 1 = yes, 0 = no
 trna=0 #find tRNAs with tRNAscan, 1 = yes, 0 = no
@@ -58,10 +58,10 @@ max_dna_len=100000 #length for dividing up contigs into chunks (increases/decrea
 min_contig=1 #skip genome contigs below this length (under 10kb are often useless)
 
 pred_flank=200 #flank for extending evidence clusters sent to gene predictors
-pred_stats=1 #report AED and QI statistics for all predictions as well as models
+pred_stats=0 #report AED and QI statistics for all predictions as well as models
 AED_threshold=1 #Maximum Annotation Edit Distance allowed (bound by 0 and 1)
 min_protein=0 #require at least this many amino acids in predicted proteins
-alt_splice=0 #Take extra steps to try and find alternative splicing, 1 = yes, 0 = no
+alt_splice=1 #Take extra steps to try and find alternative splicing, 1 = yes, 0 = no
 always_complete=0 #extra steps to force start and stop codons, 1 = yes, 0 = no
 map_forward=0 #map names and attributes forward from old GFF3 genes, 1 = yes, 0 = no
 keep_preds=0 #Concordance threshold to add unsupported gene prediction (bound by 0 and 1)

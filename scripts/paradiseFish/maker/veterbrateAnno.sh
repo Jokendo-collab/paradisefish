@@ -1,12 +1,14 @@
 #!/bin/bash
 #SBATCH --partition=norm
-#SBATCH --cpus-per-task=32
-#SBATCH --mem=232g
-#SBATCH --ntasks-per-core=1
-#SBATCH --time=24:00:00
+#SBATCH --mem=120g
+#SBATCH --ntasks=32
+#SBATCH --constraint=x2650
+#SBATCH --exclusive
+#SBATCH --gres=lscratch:200
+#SBATCH --time=240:00:00
 #SBATCH --mail-type=FAIL,END
 #SBATCH --mail-user=javan.okendo@nih.gov
-#SBATCH --job-name=VT_round_03
+#SBATCH --job-name=01_VT
 
 
 #Load the required modules
@@ -25,4 +27,4 @@ module load bioawk
 cd /data/okendojo/paradisfishProject/annotation/vertebrates
 
 
-mpiexec -n 32 maker -base round_03 /home/okendojo/scripts/paradiseFish/maker/vt02_opts.ctl /home/okendojo/scripts/paradiseFish/maker/maker_bopts.ctl /home/okendojo/scripts/paradiseFish/maker/maker_exe.ctl -f 
+mpiexec -n 32 maker -base maker_round_01 /home/okendojo/scripts/paradiseFish/maker/vt_opts.ctl /home/okendojo/scripts/paradiseFish/maker/maker_bopts.ctl /home/okendojo/scripts/paradiseFish/maker/maker_exe.ctl -f 

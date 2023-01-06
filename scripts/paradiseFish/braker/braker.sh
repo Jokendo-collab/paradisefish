@@ -71,7 +71,7 @@ cd ${HOME_DIR}
 
 echo "----- beginning braker 2 at" `date`
 
-braker.pl --cores=$THREADS --species=$SPECIES_NAME  --genome=$GENOME --bam=$TRANSCRIPT_BAM --BAMTOOLS_PATH=/data/okendojo/conda/envs/BRAKER/bin/ --softmasking --useexisting --UTR=on
+braker.pl --cores=$THREADS --species=$SPECIES_NAME --gff3 --genome=$GENOME --bam=$TRANSCRIPT_BAM --BAMTOOLS_PATH=/data/okendojo/conda/envs/BRAKER/bin/ --softmasking --useexisting --UTR=on
 
 echo "----- finished braker_2 at" `date`
 

@@ -1,16 +1,16 @@
 #-----Genome (these are always required)
-genome=/data/okendojo/paradisfishProject/annotation/zebrafish/hifiasmpriasm.fasta #genome sequence (fasta file or fasta embeded in GFF3 file)
+genome=/data/okendojo/paradisfishProject/assemblies/hifiasm/hifiasmNoTrio/hifiasmpriasm.fasta #genome sequence (fasta file or fasta embeded in GFF3 file)
 organism_type=eukaryotic #eukaryotic or prokaryotic. Default is eukaryotic
 
 #-----Re-annotation Using MAKER Derived GFF3
 maker_gff= #MAKER derived GFF3 file
-est_pass=0 #use ESTs in maker_gff: 1 = yes, 0 = no
-altest_pass=0 #use alternate organism ESTs in maker_gff: 1 = yes, 0 = no
-protein_pass=0 #use protein alignments in maker_gff: 1 = yes, 0 = no
-rm_pass=0 #use repeats in maker_gff: 1 = yes, 0 = no
-model_pass=0 #use gene models in maker_gff: 1 = yes, 0 = no
-pred_pass=0 #use ab-initio predictions in maker_gff: 1 = yes, 0 = no
-other_pass=0 #passthrough anyything else in maker_gff: 1 = yes, 0 = no
+est_pass=1 #use ESTs in maker_gff: 1 = yes, 0 = no
+altest_pass=1 #use alternate organism ESTs in maker_gff: 1 = yes, 0 = no
+protein_pass=1 #use protein alignments in maker_gff: 1 = yes, 0 = no
+rm_pass=1 #use repeats in maker_gff: 1 = yes, 0 = no
+model_pass=1 #use gene models in maker_gff: 1 = yes, 0 = no
+pred_pass=1 #use ab-initio predictions in maker_gff: 1 = yes, 0 = no
+other_pass=1 #passthrough anyything else in maker_gff: 1 = yes, 0 = no
 
 #-----EST Evidence (for best results provide a file for at least one)
 est=/data/okendojo/paradisfishProject/RNA_seq_data/transcriptome_files/asmTranstrinity.Trinity.fasta #set of ESTs or assembled mRNA-seq in fasta format
@@ -19,7 +19,7 @@ est_gff= #aligned ESTs or mRNA-seq from an external GFF3 file
 altest_gff= #aligned ESTs from a closly relate species in GFF3 format
 
 #-----Protein Homology Evidence (for best results provide a file for at least one)
-protein=/data/okendojo/paradisfishProject/annotation/vertebrates/proteinDB/vatebrates_uniprot-compressed.fasta  #protein sequence file in fasta format (i.e. from mutiple organisms)
+protein=/data/okendojo/paradisfishProject/annotation/proteindbs/uniprot-Vertebra-2022.12.01.fasta  #protein sequence file in fasta format (i.e. from mutiple organisms)
 protein_gff=  #aligned protein homology evidence from an external GFF3 file
 
 #-----Repeat Masking (leave values blank to skip repeat masking)
@@ -28,7 +28,7 @@ rmlib= #/data/okendojo/paradisfishProject/annotation/zebrafish/repAnn/paradisefi
 repeat_protein=/usr/local/apps/MAKER/3.01.03/maker/data/te_proteins.fasta #provide a fasta file of transposable element proteins for RepeatRunner
 rm_gff=/data/okendojo/paradisfishProject/annotation/rmLibDB/05_full_out/full_repeat_reformatted.gff3 #pre-identified repeat elements from an external GFF3 file
 prok_rm=0 #forces MAKER to repeatmask prokaryotes (no reason to change this), 1 = yes, 0 = no
-softmask=1 #use soft-masking rather than hard-masking in BLAST (i.e. seg and dust filtering)
+softmask=0 #use soft-masking rather than hard-masking in BLAST (i.e. seg and dust filtering)
 
 #-----Gene Prediction
 snaphmm= #SNAP HMM file
@@ -76,3 +76,4 @@ tries=2 #number of times to try a contig if there is a failure for some reason
 clean_try=0 #remove all data from previous run before retrying, 1 = yes, 0 = no
 clean_up=0 #removes theVoid directory with individual analysis files, 1 = yes, 0 = no
 TMP= #specify a directory other than the system default temporary directory for temporary files
+
