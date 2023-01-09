@@ -3,14 +3,14 @@ genome=/data/okendojo/paradisfishProject/assemblies/hifiasm/hifiasmNoTrio/hifias
 organism_type=eukaryotic #eukaryotic or prokaryotic. Default is eukaryotic
 
 #-----Re-annotation Using MAKER Derived GFF3
-maker_gff=/data/okendojo/paradisfishProject/annotation/vertebrates/maker_round_02.all.gff #MAKER derived GFF3 file
+maker_gff=/data/okendojo/paradisfishProject/annotation/vertebrates/maker_round_01.all.gff #MAKER derived GFF3 file
 est_pass=1 #use ESTs in maker_gff: 1 = yes, 0 = no
-altest_pass=1 #use alternate organism ESTs in maker_gff: 1 = yes, 0 = no
+altest_pass=0 #use alternate organism ESTs in maker_gff: 1 = yes, 0 = no
 protein_pass=1 #use protein alignments in maker_gff: 1 = yes, 0 = no
 rm_pass=1 #use repeats in maker_gff: 1 = yes, 0 = no
-model_pass=1 #use gene models in maker_gff: 1 = yes, 0 = no
-pred_pass=1 #use ab-initio predictions in maker_gff: 1 = yes, 0 = no
-other_pass=1 #passthrough anyything else in maker_gff: 1 = yes, 0 = no
+model_pass=0 #use gene models in maker_gff: 1 = yes, 0 = no
+pred_pass=0 #use ab-initio predictions in maker_gff: 1 = yes, 0 = no
+other_pass=0 #passthrough anyything else in maker_gff: 1 = yes, 0 = no
 
 #-----EST Evidence (for best results provide a file for at least one)
 est= #set of ESTs or assembled mRNA-seq in fasta format
@@ -37,7 +37,7 @@ augustus_species=paradisefish #Augustus gene prediction species model
 fgenesh_par_file= #FGENESH parameter file
 pred_gff= #ab-initio predictions from an external GFF3 file
 model_gff= #annotated gene models from an external GFF3 file (annotation pass-through)
-run_evm=1 #run EvidenceModeler, 1 = yes, 0 = no
+run_evm=0 #run EvidenceModeler, 1 = yes, 0 = no
 est2genome=0 #infer gene predictions directly from ESTs, 1 = yes, 0 = no
 protein2genome=0 #infer predictions from protein homology, 1 = yes, 0 = no
 trna=0 #find tRNAs with tRNAscan, 1 = yes, 0 = no

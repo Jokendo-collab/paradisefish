@@ -6,20 +6,17 @@
 #SBATCH --time=170:00:00
 #SBATCH --mail-type=FAIL,END
 #SBATCH --mail-user=javan.okendo@nih.gov
-#SBATCH --job-name=Ipscan
+#SBATCH --job-name=IpscanVe
 
 #Activate the interproscan envs
 source /data/$USER/conda/etc/profile.d/conda.sh && source /data/$USER/conda/etc/profile.d/mamba.sh
 mamba activate interproscan
 
 
-cd /data/okendojo/paradisfishProject/annotation/zebrafish
+cd /data/okendojo/paradisfishProject/annotation/vertebrates
 
+query=/data/okendojo/paradisfishProject/annotation/vertebrates/round_03.all.maker.proteins.fasta
 
-#interproscan.sh -appl Pfam -dp -f TSV -goterms -iprlookup -pa -t p -i maker_round_02.all.maker.proteins.fasta -d iprscan
-
-query=/data/okendojo/paradisfishProject/annotation/zebrafish/br.fasta
-
-interproscan.sh -appl pfam -dp -f TSV -goterms -iprlookup -pa -t p -i ${query} -o brakerProtein.iprscan 
+interproscan.sh -appl pfam -dp -f TSV -goterms -iprlookup -pa -t p -i $query -o protein.iprscan 
 
 
