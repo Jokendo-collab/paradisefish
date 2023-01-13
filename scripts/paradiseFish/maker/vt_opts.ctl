@@ -8,9 +8,9 @@ est_pass=1 #use ESTs in maker_gff: 1 = yes, 0 = no
 altest_pass=1 #use alternate organism ESTs in maker_gff: 1 = yes, 0 = no
 protein_pass=1 #use protein alignments in maker_gff: 1 = yes, 0 = no
 rm_pass=1 #use repeats in maker_gff: 1 = yes, 0 = no
-model_pass=1 #use gene models in maker_gff: 1 = yes, 0 = no
-pred_pass=1 #use ab-initio predictions in maker_gff: 1 = yes, 0 = no
-other_pass=1 #passthrough anyything else in maker_gff: 1 = yes, 0 = no
+model_pass=0 #use gene models in maker_gff: 1 = yes, 0 = no
+pred_pass=0 #use ab-initio predictions in maker_gff: 1 = yes, 0 = no
+other_pass=0 #passthrough anyything else in maker_gff: 1 = yes, 0 = no
 
 #-----EST Evidence (for best results provide a file for at least one)
 est=/data/okendojo/paradisfishProject/RNA_seq_data/transcriptome_files/asmTranstrinity.Trinity.fasta #set of ESTs or assembled mRNA-seq in fasta format
@@ -23,12 +23,12 @@ protein=/data/okendojo/paradisfishProject/annotation/proteindbs/uniprot-Vertebra
 protein_gff=  #aligned protein homology evidence from an external GFF3 file
 
 #-----Repeat Masking (leave values blank to skip repeat masking)
-model_org= #select a model organism for RepBase masking in RepeatMasker
-rmlib= #/data/okendojo/paradisfishProject/annotation/zebrafish/repAnn/paradisefish-families.fa #provide an organism specific repeat library in fasta format for RepeatMasker
+model_org=simple #select a model organism for RepBase masking in RepeatMasker
+rmlib=/data/okendojo/paradisfishProject/annotation/zebrafish/repAnn/paradisefish-families.fa #provide an organism specific repeat library in fasta format for RepeatMasker
 repeat_protein=/usr/local/apps/MAKER/3.01.03/maker/data/te_proteins.fasta #provide a fasta file of transposable element proteins for RepeatRunner
-rm_gff=/data/okendojo/paradisfishProject/annotation/rmLibDB/05_full_out/full_repeat_reformatted.gff3 #pre-identified repeat elements from an external GFF3 file
+rm_gff= #/data/okendojo/paradisfishProject/annotation/rmLibDB/05_full_out/full_repeat_reformatted.gff3 #pre-identified repeat elements from an external GFF3 file
 prok_rm=0 #forces MAKER to repeatmask prokaryotes (no reason to change this), 1 = yes, 0 = no
-softmask=0 #use soft-masking rather than hard-masking in BLAST (i.e. seg and dust filtering)
+softmask=1 #use soft-masking rather than hard-masking in BLAST (i.e. seg and dust filtering)
 
 #-----Gene Prediction
 snaphmm= #SNAP HMM file

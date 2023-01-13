@@ -8,7 +8,7 @@
 #SBATCH --time=240:00:00
 #SBATCH --mail-type=FAIL,END
 #SBATCH --mail-user=javan.okendo@nih.gov
-#SBATCH --job-name=01_VT
+#SBATCH --job-name=001_VT
 
 
 #Load the required modules
@@ -27,4 +27,4 @@ module load bioawk
 cd /data/okendojo/paradisfishProject/annotation/vertebrates
 
 
-mpiexec -n 32 maker -base maker_round_01 /home/okendojo/scripts/paradiseFish/maker/vt_opts.ctl /home/okendojo/scripts/paradiseFish/maker/maker_bopts.ctl /home/okendojo/scripts/paradiseFish/maker/maker_exe.ctl -f 
+mpiexec -n 32 maker -base maker_001 /home/okendojo/scripts/paradiseFish/maker/vt_opts.ctl /home/okendojo/scripts/paradiseFish/maker/maker_bopts.ctl /home/okendojo/scripts/paradiseFish/maker/maker_exe.ctl -f 

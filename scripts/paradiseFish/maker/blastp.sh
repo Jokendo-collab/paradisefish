@@ -16,11 +16,12 @@ module load blast
 #=====================
 #1. Run functional annotation
 
-cd /data/okendojo/paradisfishProject/annotation/vertebrates
+cd /data/okendojo/paradisfishProject/annotation/zebrafish/attributeAdd/tempData
 
 #prepare the uniprot database
 #makeblastdb -in uniprot-8zebrafis.fasta
 
 query=/data/okendojo/paradisfishProject/annotation/zebrafish/brakerprotein.fasta 
 
-blastp -query ${query} -db /data/okendojo/paradisfishProject/annotation/vertebrates/proteinDB/uniprot-Vertebra-2022.12.01.fasta -evalue 1e-6 -max_hsps 1 -max_target_seqs 1 -num_threads 24 -outfmt 6 -out braker.blastp
+
+blastp -query ${query} -db /data/okendojo/paradisfishProject/annotation/vertebrates/proteinDB/uniprot-Vertebra-2022.12.01.fasta -evalue 1e-6 -max_hsps 1 -max_target_seqs 1 -num_threads 24 -outfmt 6 -out blastp.out

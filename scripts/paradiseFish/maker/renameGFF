@@ -16,5 +16,9 @@ grep '^>' uniprot-8zebrafis-2022.12.01.fasta | grep 'GN=\S' | sed 's/^>\(\S\+\)\
 awk -v OFS=$'\t' '{print $2"\t"$0}' your_blastp | sort -k1,1 > your_sorted_blastp
 join -t$'\t' your_sorted_blastp id_symbol_map > output
 awk -v OFS=$'\t' '{print $2,"Name",$NF}' sorted_blastp > tattr
+
 perl -I scripts/perl_pm/ scripts/czl_gff_util.pl add_attr -if gff3 -i round3.gff -tattrf uniProtedb/tattr -of gff3 -o output2.gff
 -tattrf instead of -gattrf ( t = mRNA & g=genes)
+
+#Chaning of ID names
+perl -I ../scripts/perl_pm/ ../scripts/czl_gff_util.pl remap_info_name -if gff3 -i  maker_round_03.hom.gff -tattr 'Name=>ID' -of gff3 -o test.out2.gff

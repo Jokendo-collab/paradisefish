@@ -15,8 +15,8 @@ mamba activate interproscan
 
 cd /data/okendojo/paradisfishProject/annotation/vertebrates
 
-query=/data/okendojo/paradisfishProject/annotation/vertebrates/round_03.all.maker.proteins.fasta
+query=/data/okendojo/paradisfishProject/annotation/zebrafish/brakerprotein.fasta
 
-interproscan.sh -appl pfam -dp -f TSV -goterms -iprlookup -pa -t p -i $query -o protein.iprscan 
+interproscan.sh -appl pfam -dp -f TSV -goterms -iprlookup -pa -t p -i $query -o brakerprotein.iprscan 
 
 
